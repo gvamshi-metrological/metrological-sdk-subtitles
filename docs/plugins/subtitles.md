@@ -1,7 +1,6 @@
 # Subtitles
 
-subtitle plugin allows you to fetch  and parse subtitle file from a URL and you can read subtitle text from the parsed file based on current videoPlayback time.
-you can render this subtitle text in your app using text texture.
+subtitle plugin allows you to fetch and parse the subtitle file from the given URL and you can read the subtitle text from the parsed file based on the current videoplayback time.
 
 ## Usage
 
@@ -20,6 +19,7 @@ import { Subtitles } from '@lightningjs/sdk'
 This method will fetch a file from the URL and parse it to create a list of objects. created subtitles list is stored in the plugin.
 This method returns a promise that resolves to parsed subtitles as a list of objects containing {start, end, payload}.
 ```js
+const subtitlesUrl = 'http://abc.def.com/xyz.srt'
 Subtitles.fetchAndParseSubs(URL)
 ```
 ### customParser
@@ -29,6 +29,12 @@ you can also send a customParser as a callback to `fetchAndParseSubs` as a secon
 
 
 ```js
+const customParser = (str) = {
+    ...
+    ...
+    return [{start: 3, end: 10, payload: 'this is subtitle text'}, { start: 11, end: 14, payload: 'this is subtitle text2'}, ...]
+}
+const subtitlesUrl = 'http://abc.def.com/xyz.srt'
 Subtitles.fetchAndParseSubs(URL, customParser)
 ```
 

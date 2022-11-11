@@ -479,7 +479,7 @@ The available events are:
 
 ### SubtitlesParse
 
-you can also parse a subtitle file from a URL and get current subtitles
+subtitle plugin allows you to fetch and parse the subtitle file from the given URL and you can read the subtitle text from the parsed file based on the current videoplayback time.
 
 ```js
 const subtitlesUrl = 'http://abc.def.com/xyz.srt'
@@ -505,17 +505,17 @@ the third argument to keep text styles in subtitle string
 const subtitlesUrl = 'http://abc.def.com/xyz.srt'
 VideoPlayer.openSubtitles(subtitlesUrl, null, {removeSubtitleTextStyles: false})
 ```
-on successful parsing of subtitles $VidePlayerSubtitlesReady is fired on the consumer.
-if VideoPlayer fails to parse subtitles a $VidePlayerSubtitlesError is fired on the consumer.
+on successful parsing of subtitles $videoPlayerSubtitlesReady is fired on the consumer.
+if VideoPlayer fails to parse subtitles a $videoPlayerSubtitlesError is fired on the consumer. error returned as first argument.
 
 
 ### currentSubtitleText
 
 getter that retrieves the current subtitle as a string based on videoPlayer currentTime, which can be rendered in your app using the text component.
 or
-you can use the $VidePlayerSubtitleTextChanged event that fires when there is a subtitle text change, in this event you receive
- object { text }as the first argument. text is a subtitle string
- videoPlayer current time as the second argument.
+you can use the $VidePlayerSubtitleTextChanged event that fires when there is a subtitle text change, in this event you will receive
+subtitle string as the first argument.
+videoPlayer current time as the second argument.
  ```js
 class DummyComponent extends Lightning.component {
     static _template() {
@@ -531,7 +531,7 @@ class DummyComponent extends Lightning.component {
         }
     }
 
-    $VidePlayerSubtitleTextChanged({text}, currentTime){
+    $videoPlayerSubtitleTextChanged(text, currentTime){
         const _subtitleText = text || ''// current subtitle to render depending on video playback
         // update subtitle text to your template
         this.tag('Subtitles').text = _subtitleText;
