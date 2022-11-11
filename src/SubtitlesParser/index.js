@@ -25,7 +25,7 @@ export default class SubtitlesParser {
   static fetchAndParseSubs(url, customParser = false, parseOptions = {}) {
     const _url = new URL(url)
     if (!((_url.protocol === 'https:' || _url.protocol === 'http:') && _url.hostname)) {
-      Log.info('Invalid URL')
+      Log.info('Invalid subtitle Url')
       return Promise.reject(new Error('Invalid URL'))
     }
     if (parseOptions && 'removeSubtitleTextStyles' in parseOptions) {
