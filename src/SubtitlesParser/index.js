@@ -51,7 +51,6 @@ export default class SubtitlesParser {
           }
         })
         .catch(error => {
-
           Log.error('Fetching file Failed:', error)
           this.clearAllSubtitles()
           reject('Fetching file Failed')
@@ -95,7 +94,6 @@ export default class SubtitlesParser {
       return this._captions
         .slice(0, this._lastIndex)
         .findIndex(cue => currentTime >= cue.start && currentTime < cue.end)
-
     }
   }
 
@@ -133,7 +131,6 @@ export default class SubtitlesParser {
               start,
               end,
               payload: subPayload
-
                 ? this._removeSubtitleTextStyles
                   ? subPayload.replace(/<(.*?)>/g, '') // Remove <v- >, etc tags in subtitle text
                   : subPayload
@@ -157,7 +154,6 @@ export default class SubtitlesParser {
       }
     }
     if (start && end) {
-
       let match = /<(.*?)>/g
       if (payload) {
         payload.replace(match, '')
@@ -166,7 +162,6 @@ export default class SubtitlesParser {
         start,
         end,
         payload: payload
-
           ? this._removeSubtitleTextStyles
             ? payload.replace(/<(.*?)>/g, '') // Remove <v- >, etc tags in subtitle text
             : payload
