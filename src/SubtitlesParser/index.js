@@ -16,7 +16,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import { Log } from '../LightningSdkPlugins'
+
 export default class SubtitlesParser {
   // @ params url: subtitle file URL
   // @return parsed subtitles as list of objects
@@ -35,6 +37,7 @@ export default class SubtitlesParser {
       fetch(url)
         .then(data => {
           let subtitleData = data.text()
+
           this.clearAllSubtitles()
           if (customParser && typeof customParser === 'function') {
             this._captions = customParser(subtitleData)
@@ -48,6 +51,7 @@ export default class SubtitlesParser {
           }
         })
         .catch(error => {
+
           Log.error('Fetching file Failed:', error)
           this.clearAllSubtitles()
           reject('Fetching file Failed')
@@ -91,14 +95,17 @@ export default class SubtitlesParser {
       return this._captions
         .slice(0, this._lastIndex)
         .findIndex(cue => currentTime >= cue.start && currentTime < cue.end)
+
     }
   }
 
   // parses subtitle file and returns list of time, text objects
+
   static parseSubtitles(plainSub, parseOptions = {}) {
     if (parseOptions && 'removeSubtitleTextStyles' in parseOptions) {
       this._removeSubtitleTextStyles = parseOptions.removeSubtitleTextStyles
     }
+
     let linesArray = plainSub
       .trim()
       .replace('\r\n', '\n')
@@ -126,6 +133,7 @@ export default class SubtitlesParser {
               start,
               end,
               payload: subPayload
+
                 ? this._removeSubtitleTextStyles
                   ? subPayload.replace(/<(.*?)>/g, '') // Remove <v- >, etc tags in subtitle text
                   : subPayload
@@ -149,6 +157,7 @@ export default class SubtitlesParser {
       }
     }
     if (start && end) {
+
       let match = /<(.*?)>/g
       if (payload) {
         payload.replace(match, '')
@@ -157,6 +166,7 @@ export default class SubtitlesParser {
         start,
         end,
         payload: payload
+
           ? this._removeSubtitleTextStyles
             ? payload.replace(/<(.*?)>/g, '') // Remove <v- >, etc tags in subtitle text
             : payload
