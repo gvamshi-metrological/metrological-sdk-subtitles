@@ -351,39 +351,6 @@ VideoPlayer.open(videoUrl)
 VideoPlayer.src // http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4
 ```
 
-### SubtitlesParse
-
-you can also parse a subtitle file from a URLand get current subtitles
-
-
-
-```js
-const subtitlesUrl = 'http://abc.def.com/xyz.srt'
-VideoPlayer.openSubtitles(subtitlesUrl)
-```
-### subtitle text
-
-getter that retrieves current subtitle as string based on videoPlayer currenttime,  that can be rendered in your app using text component.
- ```js
-class DummyComponent extends Lightning.component {
-    // static _template() {
-    //    Subtitles: {
-    //    text: {
-    //        text: '',
-    //        textColor: 0xff000000,
-    //        fontSize: 48,
-    //        textAlign: 'center',
-    //        }
-    //    }
-    }
-    $VidePlayerSubtitlesReady
-    const _subtitleText = VideoPlayer.currentSubtitleText
-    // Subtitles is a tag that already created in your components template
-    this.tag('Subtitles').text = _subtitleText;
-}
-```
-
-
 ### playing
 
 Getter that indicates whether the video player is currently in a *playing* state (`true`) or a *paused* state (`false`).
@@ -509,4 +476,69 @@ The available events are:
 * $videoPlayerVolumeChange
 * $videoPlayerWaiting
 * $videoPlayerClear
+
+### SubtitlesParse
+
+you can also parse a subtitle file from a URL and get current subtitles
+
+```js
+const subtitlesUrl = 'http://abc.def.com/xyz.srt'
+VideoPlayer.openSubtitles(subtitlesUrl)
+```
+If you don't want to use the default parser you can also pass a custom parser as a callback as the second argument.
+
+NOTE: customParser must return list of subtitle object contains {start: \<float\>, end: \<float\>, payload: \<string\>}
+
+```js
+const customParser = (str) = {
+    ...
+    ...
+    return [{start: 3, end: 10, payload: 'this is subtitle text'}, { start: 11, end: 14, payload: 'this is subtitle text2'}, ...]
+}
+const subtitlesUrl = 'http://abc.def.com/xyz.srt'
+VideoPlayer.openSubtitles(subtitlesUrl, customParser)
+```
+By default, all the TextStyles are removed in subtitle text, you can pass {removeSubtitleTextStyles: false} as
+the third argument to keep text styles in subtitle string
+
+```js
+const subtitlesUrl = 'http://abc.def.com/xyz.srt'
+VideoPlayer.openSubtitles(subtitlesUrl, null, {removeSubtitleTextStyles: false})
+```
+on successful parsing of subtitles $VidePlayerSubtitlesReady is fired on the consumer.
+if VideoPlayer fails to parse subtitles a $VidePlayerSubtitlesError is fired on the consumer.
+
+
+### currentSubtitleText
+
+getter that retrieves the current subtitle as a string based on videoPlayer currentTime, which can be rendered in your app using the text component.
+or
+you can use the $VidePlayerSubtitleTextChanged event that fires when there is a subtitle text change, in this event you receive
+ object { text }as the first argument. text is a subtitle string
+ videoPlayer current time as the second argument.
+ ```js
+class DummyComponent extends Lightning.component {
+    static _template() {
+        return {
+            Subtitles: {
+                text: {
+                    text: ''
+                    textColor: 0xff000000,
+                    fontSize: 48,
+                    textAlign: 'center',
+                }
+            }
+        }
+    }
+
+    $VidePlayerSubtitleTextChanged({text}, currentTime){
+        const _subtitleText = text || ''// current subtitle to render depending on video playback
+        // update subtitle text to your template
+        this.tag('Subtitles').text = _subtitleText;
+    }
+
+    const _subtitleText = VideoPlayer.currentSubtitleText || ''
+    this.tag('Subtitles').text = _subtitleText;
+}
+```
 

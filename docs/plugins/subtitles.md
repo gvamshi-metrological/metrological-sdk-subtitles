@@ -22,9 +22,26 @@ This method returns a promise that resolves to parsed subtitles as a list of obj
 ```js
 Subtitles.fetchAndParseSubs(URL)
 ```
+### customParser
 
+you can also send a customParser as a callback to `fetchAndParseSubs` as a second argument, customParser should return a list of subtitle objects that contains
+{start: <float>, end: <float>, payload: <string>}
+
+
+```js
+Subtitles.fetchAndParseSubs(URL, customParser)
+```
+
+### removeSubtitleTextStyles
+
+By default, all the TextStyles in the subtitle string are removed, you can pass {removeSubtitleTextStyles: false} as
+the third argument to keep text styles in subtitle string
+
+```js
+Subtitles.fetchAndParseSubs(URL, null, {removeSubtitleTextStyles: false})
+```
 ### getSubtitleByTimeIndex
-From the stored subtitles you can get subtitles as text, when you pass currentTime(in seconds) as an argument to the method.
+From the stored subtitles you can get subtitles as text when you pass currentTime(in seconds) as an argument to the method.
 
 ```js
 Subtitles.getSubtitleByTimeIndex(currentTime)
@@ -32,7 +49,7 @@ Subtitles.getSubtitleByTimeIndex(currentTime)
 
 ### clearCurrentSubtitle
 
-Parsed subtitles will be stored in the plugin, `clearCurrentSubtitle` clears all the stored subtitles in the plugin.
+`clearCurrentSubtitle` method will clear all the stored subtitles in the plugin.
 
 ```js
 Subtitles.clearCurrentSubtitle()

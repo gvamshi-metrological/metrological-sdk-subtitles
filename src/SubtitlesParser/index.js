@@ -21,18 +21,21 @@ import { Log } from '../LightningSdkPlugins'
 
 export default class SubtitlesParser {
   // @ params url: subtitle file URL
+  // @ customParser: a customParser to use instead of default parser of the plugin
+  // @ parseOptions.removeSubtitleTextStyles: remove subtitle textstyles possible value true or false
   // @return parsed subtitles as list of objects
   // also stores parsed data
-  // static _removeSubtitleTextStyles
-  static fetchAndParseSubs(url, customParser = false, parseOptions = {}) {
+  static fetchAndParseSubs(
+    url,
+    customParser = false,
+    parseOptions = { removeSubtitleTextStyles: true }
+  ) {
     const _url = new URL(url)
     if (!((_url.protocol === 'https:' || _url.protocol === 'http:') && _url.hostname)) {
       Log.info('Invalid subtitle Url')
       return Promise.reject(new Error('Invalid URL'))
     }
-    if (parseOptions && 'removeSubtitleTextStyles' in parseOptions) {
-      this._removeSubtitleTextStyles = parseOptions.removeSubtitleTextStyles
-    }
+
     return new Promise((resolve, reject) => {
       fetch(url)
         .then(data => {
@@ -42,7 +45,7 @@ export default class SubtitlesParser {
           if (customParser && typeof customParser === 'function') {
             this._captions = customParser(subtitleData)
           } else {
-            this._captions = this.parseSubtitles(subtitleData)
+            this._captions = this.parseSubtitles(subtitleData, parseOptions)
           }
           if (this._captions && this._captions.length) {
             resolve(this._captions)
@@ -51,9 +54,9 @@ export default class SubtitlesParser {
           }
         })
         .catch(error => {
-          Log.error('Fetching file Failed:', error)
+          Log.error('Fetching subtitles file Failed:', error)
           this.clearAllSubtitles()
-          reject('Fetching file Failed')
+          reject('Fetching subtitles file Failed')
         })
     })
   }
@@ -63,13 +66,16 @@ export default class SubtitlesParser {
     this._captions = null
   }
 
+  // get current subtitles
+  // @ currentTime: currentTime in seconds
+  // @return: subtitle text at that currentTime
   static getSubtitleByTimeIndex(currentTime) {
-    if (!Array.isArray(this._captions) || this._captions.length <= 0) {
-      throw new Error("didn't find and stored captions in plugin")
+    if (currentTime === undefined || isNaN(currentTime) || typeof currentTime !== 'number') {
+      throw new Error('You should pass a currentTime to fetch the current subtitle')
     }
 
-    if (currentTime === undefined || typeof currentTime !== 'number') {
-      throw new Error('You should pass a currentTime to fetch the current subtitle')
+    if (!Array.isArray(this._captions) || this._captions.length <= 0) {
+      throw new Error("didn't find and stored captions in plugin")
     }
 
     if (this._lastIndex > this._captions.length - 1 || !this._lastIndex) {
@@ -98,7 +104,6 @@ export default class SubtitlesParser {
   }
 
   // parses subtitle file and returns list of time, text objects
-
   static parseSubtitles(plainSub, parseOptions = {}) {
     if (parseOptions && 'removeSubtitleTextStyles' in parseOptions) {
       this._removeSubtitleTextStyles = parseOptions.removeSubtitleTextStyles
@@ -174,10 +179,11 @@ export default class SubtitlesParser {
 
   // parses timestamp in subtitle file into seconds
   static parseTimeStamp(s) {
-    const match = s.match(/^(?:([0-9]+):)?([0-5][0-9]):([0-5][0-9](?:[.,][0-9]{0,3})?)/)
+    const match = s.match(SubtitlesParser.TIMESTAMP_REGX)
     const hours = parseInt(match[1], 10) || '0'
     const minutes = parseInt(match[2], 10)
     const seconds = parseFloat(match[3].replace(',', '.'))
     return seconds + 60 * minutes + 60 * 60 * hours
   }
 }
+SubtitlesParser.TIMESTAMP_REGX = /^(?:([0-9]+):)?([0-5][0-9]):([0-5][0-9](?:[.,][0-9]{0,3})?)/

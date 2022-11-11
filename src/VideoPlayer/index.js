@@ -94,9 +94,9 @@ const fireOnConsumer = (event, args) => {
     subtitles.currentSubtitle = SubtitlesParser.getSubtitleByTimeIndex(videoEl.currentTime)
     if (subtitles.previousSubtitle !== subtitles.currentSubtitle) {
       subtitles.previousSubtitle = subtitles.currentSubtitle
+      // firing SubtitleTextChanged event on consumer if text is changed
       fireOnConsumer('SubtitleTextChanged', {
         text: subtitles.currentSubtitle,
-        startTime: videoEl.currentTime,
       })
     }
   }
@@ -266,10 +266,10 @@ const videoPlayerPlugin = {
       })
     }
   },
-
-  openSubtitles(url, customParser = false) {
+  // open subtitle file
+  openSubtitles(url, customParser = false, options = { removeSubtitleTextStyles: true }) {
     if (!this.canInteract) return
-    SubtitlesParser.fetchAndParseSubs(url, customParser)
+    SubtitlesParser.fetchAndParseSubs(url, customParser, options)
       .then(() => {
         subtitles.hasSubtitles = true
         fireOnConsumer('SubtitlesReady', {})
@@ -279,8 +279,9 @@ const videoPlayerPlugin = {
       })
   },
 
+  // clear all subtitle related data
   clearSubtitles() {
-    SubtitlesParser.clearCurrentSubtitle()
+    SubtitlesParser.clearAllSubtitles()
     subtitles.hasSubtitles = false
     subtitles.currentSubtitle = ''
     subtitles.previousSubtitle = ''
@@ -316,7 +317,7 @@ const videoPlayerPlugin = {
     if (textureMode === true) videoTexture.stop()
     return unloader(videoEl).then(() => {
       if (subtitles.hasSubtitles) {
-        SubtitlesParser.clearCurrentSubtitle()
+        SubtitlesParser.clearAllSubtitles()
         subtitles.hasSubtitles = false
         subtitles.currentSubtitle = ''
         subtitles.previousSubtitle = ''
@@ -475,7 +476,7 @@ const videoPlayerPlugin = {
       return null
     }
     const _subtitleText = SubtitlesParser.getSubtitleByTimeIndex(this.currentTime)
-    return _subtitleText ? _subtitleText : null
+    return _subtitleText ? _subtitleText : ''
   },
 
   // prefixed with underscore to indicate 'semi-private'
